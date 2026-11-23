@@ -28,6 +28,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&family=Gowun+Batang:wght@400;700&family=Jua&family=Noto+Sans+KR:wght@400;700;900&display=swap">
+<!-- 일본어 모드용 폰트 — M PLUS 1p(900/800/700) · Noto Sans JP -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@700;800;900&family=Noto+Sans+JP:wght@400;700;900&display=swap">
 <style>
   *{box-sizing:border-box}
   html,body{margin:0;height:100%}
@@ -140,6 +142,37 @@
   details.help b{color:#5FF2FF;font-weight:800}
   .note{font-size:11.5px;color:#6E7A8D;line-height:1.55;margin-top:6px}
   .legal{font-size:11px;color:#4E5A6C;line-height:1.55;margin-top:6px}
+
+  /* ───────────── 언어 · 계정 프리셋 ───────────── */
+  .presets{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .preset-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;line-height:1.25;
+    background:#0B0E13;border:1px solid #242C39;border-radius:11px;padding:10px 8px;
+    font-size:13.5px;font-weight:800;color:#93A0B4;cursor:pointer;transition:.15s}
+  .preset-btn small{font-size:11px;font-weight:700;color:#6E7A8D;letter-spacing:0}
+  .preset-btn:hover{border-color:#3B475C;color:#C9D3E2}
+  .preset-btn.on{border-color:#5FF2FF;background:rgba(95,242,255,.08);color:#FFF;box-shadow:0 0 0 1px rgba(95,242,255,.35) inset}
+  .preset-btn.on small{color:#C9D3E2}
+
+  /* 🇯🇵 일본어 프리셋 — 포인트 컬러를 일렉트릭 옐로우(#FFE600)로 */
+  body.preset-ja .brand b,
+  body.preset-ja a.link,
+  body.preset-ja #aiStatus.ok,
+  body.preset-ja .ai-title small{color:#FFE600}
+  body.preset-ja input[type=text]:focus,
+  body.preset-ja input[type=password]:focus,
+  body.preset-ja textarea:focus,
+  body.preset-ja select:focus{border-color:#FFE600;box-shadow:0 0 0 2px rgba(255,230,0,.16)}
+  body.preset-ja .fmt input:checked + span{border-color:#FFE600;background:rgba(255,230,0,.08);box-shadow:0 0 0 1px rgba(255,230,0,.35) inset}
+  body.preset-ja .chip.on{border-color:#FFE600;background:#FFE600;color:#141414}
+  body.preset-ja .tab.on::after{background:#FFE600}
+  body.preset-ja .btn.primary{background:#FFE600;border-color:#FFE600;color:#141414}
+  body.preset-ja .btn.primary:hover{background:#FFF04D}
+  body.preset-ja .chk input{accent-color:#FFE600}
+  body.preset-ja input[type=range]::-webkit-slider-thumb{background:#FFE600;box-shadow:0 0 0 1px #FFE600}
+  body.preset-ja input[type=range]::-moz-range-thumb{background:#FFE600}
+  body.preset-ja .prog .bar i{background:linear-gradient(90deg,#FFE600,#FF9F1C)}
+  body.preset-ja .drop:hover,body.preset-ja .drop.over{border-color:#FFE600;background:rgba(255,230,0,.06)}
+  body.preset-ja .preset-btn.on{border-color:#FFE600;background:rgba(255,230,0,.10);box-shadow:0 0 0 1px rgba(255,230,0,.4) inset}
   @media (max-width:1000px){
     main{grid-template-columns:1fr;flex:none}
     .panel{border-right:none;border-bottom:1px solid #1C222E}
@@ -226,12 +259,17 @@
     header .btn{padding:7px 8px;font-size:11.5px}
     .tab{font-size:12.5px}
   }
+
+  @media (max-width:900px){
+    .preset-btn{min-height:56px;font-size:14px;padding:11px 8px}
+    .preset-btn small{font-size:11.5px}
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="brand"><b>@winnie__zip</b> 스튜디오<small>카드뉴스 · 릴스 제작</small></div>
+  <div class="brand"><b id="brandHandle">@winnie__zip</b> <span id="brandName">스튜디오</span><small>카드뉴스 · 릴스 제작</small></div>
   <div class="spacer"></div>
   <button class="btn" id="btnSample">샘플 채우기</button>
   <button class="btn" id="btnReset">처음부터</button>
@@ -240,6 +278,15 @@
 <main>
   <!-- ───────────── 왼쪽: 설정 패널 ───────────── -->
   <aside class="panel">
+
+    <section class="card" id="presetCard">
+      <h2>언어 · 계정</h2>
+      <div class="presets" role="group" aria-label="언어 프리셋">
+        <button type="button" class="preset-btn on" data-preset="ko">🇰🇷 한국어<small>@winnie__zip</small></button>
+        <button type="button" class="preset-btn" data-preset="ja">🇯🇵 日本語<small>@sekai__clip</small></button>
+      </div>
+      <div class="note">워터마크 · 포인트 컬러 · 글꼴 · AI 언어가 한 번에 바뀌어요.</div>
+    </section>
 
     <section class="card">
       <details class="help">
@@ -301,11 +348,8 @@
       </div>
 
       <div class="row">
-        <label>스타일</label>
-        <select id="aiStyle">
-          <option value="ko">한국어 @winnie__zip</option>
-          <option value="ja">일본어 해외·동물 이슈</option>
-        </select>
+        <label>AI 언어</label>
+        <div class="note" id="aiStyleNote" style="margin-top:2px">🇰🇷 한국어 (@winnie__zip) — 위 「언어 · 계정」 버튼으로 바뀝니다.</div>
       </div>
 
       <button class="btn primary wide" type="button" id="aiRun">AI로 글·캡션 자동 채우기</button>
@@ -316,6 +360,10 @@
           <label>인스타 본문 캡션 + 해시태그</label>
           <textarea id="aiCaption" readonly placeholder="AI가 만든 캡션이 여기에 나와요"></textarea>
           <button class="btn wide" type="button" id="aiCopy">캡션 복사</button>
+        </div>
+        <div class="row" id="aiKoWrap" style="display:none">
+          <label>🇰🇷 한국어 뜻풀이 <span style="font-weight:400;color:#5F6B7E">(확인용 · 게시 X)</span></label>
+          <textarea id="aiKo" readonly placeholder="일본어 모드에서는 AI가 한국어 요약을 함께 써 줘요" style="min-height:92px"></textarea>
         </div>
       </div>
 
@@ -413,6 +461,10 @@
           <option value="noto">Noto Sans KR (정갈한 뉴스체)</option>
           <option value="gowun">Gowun Batang (감성 명조체)</option>
           <option value="jua">Jua (부드러운 손글씨)</option>
+          <optgroup label="🇯🇵 日本語">
+            <option value="mplus1p">M PLUS 1p (일본어 기본 · 굵은 고딕)</option>
+            <option value="notosansjp">Noto Sans JP (일본어 정갈한 고딕)</option>
+          </optgroup>
         </select>
         <div class="note">글꼴을 받아온 뒤 미리보기가 바로 바뀌어요. (오프라인이면 기본 글꼴로 보입니다)</div>
       </div>
@@ -526,6 +578,16 @@
       label: 'Jua', family: 'Jua',
       stack: '"Jua", "Pretendard", "Malgun Gothic", sans-serif',
       probe: '400 40px "Jua"'
+    },
+    mplus1p: {
+      label: 'M PLUS 1p', family: 'M PLUS 1p',
+      stack: '"M PLUS 1p", "Noto Sans JP", "Pretendard", "Malgun Gothic", sans-serif',
+      probe: '900 40px "M PLUS 1p"'
+    },
+    notosansjp: {
+      label: 'Noto Sans JP', family: 'Noto Sans JP',
+      stack: '"Noto Sans JP", "M PLUS 1p", "Pretendard", "Malgun Gothic", sans-serif',
+      probe: '900 40px "Noto Sans JP"'
     }
   };
   function fontOf(name) { return Object.prototype.hasOwnProperty.call(FONTS, name) ? FONTS[name] : FONTS.pretendard; }
@@ -541,10 +603,33 @@
   const STORE_KEY = 'winnie_studio_v1';
   const AI_STORE_KEY = 'winnie_studio_ai_v1';
   const SLIDE_NAME = ['1_커버', '2_본문1', '3_본문2'];
+  const SLIDE_NAME_JA = ['1_カバー', '2_本文1', '3_本文2'];
 
   const THEMES = {
     mint: { bg: '#0F1116', grad: '#0F1116', text: '#FFFFFF', accent: '#5FF2FF', badge: '#5FF2FF', highlightOn: false, highlight: '#FFE45E', shadow: true },
     cream: { bg: '#FDF7EA', grad: '#FDF7EA', text: '#14161A', accent: '#C89B00', badge: '#FFE45E', highlightOn: true, highlight: '#FFE45E', shadow: false }
+  };
+
+  /* ── 언어/계정 프리셋 — 버튼 하나로 워터마크·포인트 컬러·글꼴·AI 언어를 같이 바꿈 ── */
+  const PRESETS = {
+    ko: {
+      name: 'ko', brand: '스튜디오',
+      docTitle: 'winnie__zip 스튜디오 · 카드뉴스 & 릴스',
+      watermark: '@winnie__zip', accent: '#5FF2FF', font: 'pretendard',
+      badge0: '속보 · 이슈', notice: '@winnie__zip 팔로우하고 더 보기',
+      body: '본문 내용을 입력하세요', sub: '작은 부제 (비우면 숨김)', subhead: '소제목',
+      aiNote: '🇰🇷 한국어 (@winnie__zip) — 위 「언어 · 계정」 버튼으로 바뀝니다.',
+      aiSource: '기사 본문을 통째로 붙여넣으세요. (제목·요약·본문 아무거나 OK)'
+    },
+    ja: {
+      name: 'ja', brand: 'スタジオ',
+      docTitle: 'sekai__clip スタジオ · カードニュース & リール',
+      watermark: '@sekai__clip', accent: '#FFE600', font: 'mplus1p',
+      badge0: '海外・話題', notice: '@sekai__clip フォローしてね',
+      body: '本文を入力してください', sub: '小さな副題（空なら非表示）', subhead: '小見出し',
+      aiNote: '🇯🇵 日本語 (@sekai__clip) — 韓国語の記事を貼れば日本語に書き直します。',
+      aiSource: '韓国語の記事をそのまま貼り付けてOK。日本語のカードニュースに仕上げます。'
+    }
   };
 
   const SAMPLE = {
@@ -570,6 +655,30 @@
     ]
   };
 
+  /** 일본어 프리셋용 샘플 (レイアウト見本 — 数字は一般的なコアラの話) */
+  const SAMPLE_JA = {
+    watermark: '@sekai__clip',
+    slides: [
+      {
+        badge: '動物・話題',
+        lines: ['世界一のねぼすけ', '1日20時間も眠る', 'その意外な理由'],
+        accents: [false, true, false],
+        sub: 'なぜそんなに眠れるの？'
+      },
+      {
+        badge: '2 / 3',
+        subhead: '眠るために生きている？',
+        body: 'コアラは1日のうち18〜20時間を\n眠って過ごします。\n\n実はそれ、硬くて栄養の少ない\nユーカリを消化するための知恵。\n\n動かないことでエネルギーを\n節約しているんだそうです。'
+      },
+      {
+        badge: '3 / 3',
+        subhead: '知るとちょっと愛おしい',
+        body: '① 起きているのは4時間ほど\n② ほぼユーカリしか食べない\n③ 赤ちゃんは親のフンから\n   腸内細菌をもらう\n\nのんびりに見えて、\nちゃんと生きる戦略があるんですね。',
+        notice: '@sekai__clip フォローしてね'
+      }
+    ]
+  };
+
   /* ── 1. 상태 ───────────────────────────────────────────── */
   function defaultState(format, withSample) {
     format = format || 'reels';
@@ -585,6 +694,7 @@
     const S = withSample ? SAMPLE.slides : [{}, {}, {}];
     return {
       format: format,
+      preset: 'ko',
       watermark: '@winnie__zip',
       font: 'pretendard',
       theme: 'mint',
@@ -612,6 +722,7 @@
       if (!s || !s.slides || s.slides.length !== 3) return null;
       /* 예전에 저장한 설정에는 없는 값(글꼴·부제 크기·그라데이션 색)은 기본값으로 채운다 */
       const F = FORMAT[s.format] ? FORMAT[s.format] : FORMAT.reels;
+      s.preset = (s.preset === 'ja') ? 'ja' : 'ko';
       s.font = Object.prototype.hasOwnProperty.call(FONTS, s.font) ? s.font : 'pretendard';
       s.sizes = Object.assign({ title: F.title, body: F.body, sub: F.sub }, s.sizes || {});
       ['title', 'body', 'sub'].forEach(function (k) {
@@ -958,7 +1069,7 @@
       ctx.fillStyle = rgba(state.colors.text, 0.42);
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('이미지를 넣으면 여기에 사진이 들어가요', W / 2, H * 0.3);
+      ctx.fillText((state.preset === 'ja') ? '写真を入れるとここに表示されます' : '이미지를 넣으면 여기에 사진이 들어가요', W / 2, H * 0.3);
       ctx.restore();
     }
 
@@ -1017,20 +1128,23 @@
   function fileBase() {
     const d = new Date();
     const p = function (n) { return String(n).padStart(2, '0'); };
-    return 'winniezip_' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
+    const prefix = (state.preset === 'ja') ? 'sekai_clip' : 'winniezip';
+    return prefix + '_' + d.getFullYear() + p(d.getMonth() + 1) + p(d.getDate()) + '_' + p(d.getHours()) + p(d.getMinutes());
   }
+
+  function slideNames() { return (state.preset === 'ja') ? SLIDE_NAME_JA : SLIDE_NAME; }
 
   async function saveCurrent() {
     const blob = await slideBlob(slideIndex);
-    download(blob, fileBase() + '_' + SLIDE_NAME[slideIndex] + '.png');
-    toast('PNG 저장했어요 (' + SLIDE_NAME[slideIndex] + ')');
+    download(blob, fileBase() + '_' + slideNames()[slideIndex] + '.png');
+    toast('PNG 저장했어요 (' + slideNames()[slideIndex] + ')');
   }
 
   async function saveAll() {
     toast('3장을 저장하는 중…');
     for (let i = 0; i < 3; i++) {
       const blob = await slideBlob(i);
-      download(blob, fileBase() + '_' + SLIDE_NAME[i] + '.png');
+      download(blob, fileBase() + '_' + slideNames()[i] + '.png');
       await sleep(450);
     }
     toast('3장 모두 저장했어요. 다운로드 폴더를 확인하세요.');
@@ -1042,7 +1156,7 @@
     for (let i = 0; i < 3; i++) {
       const blob = await slideBlob(i);
       files.push({
-        name: SLIDE_NAME[i] + '.png',
+        name: slideNames()[i] + '.png',
         data: new Uint8Array(await blob.arrayBuffer())
       });
     }
@@ -1394,8 +1508,9 @@
     try {
       if (document.fonts && document.fonts.load) loading = document.fonts.load(f.probe);
     } catch (e) { loading = null; }
-    if (loading && typeof loading.then === 'function') loading.then(finish, finish);
-    else setTimeout(finish, 0);
+    /* 캔버스에 그리기 전에 폰트 로드 + document.fonts.ready 를 함께 기다린다 (일본어 글꼴 대비) */
+    const ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : null;
+    Promise.all([loading || Promise.resolve(), ready || Promise.resolve()]).then(finish, finish);
     /* 폰트가 늦게 도착하는 경우를 대비해 잠시 뒤 한 번 더 그린다 */
     setTimeout(function () { touch(); render(); }, 1200);
   }
@@ -1416,7 +1531,8 @@
       body2: { type: 'string' },
       sub3: { type: 'string' },
       body3: { type: 'string' },
-      caption: { type: 'string' }
+      caption: { type: 'string' },
+      koreanNote: { type: 'string' }
     },
     required: ['badge', 'title1', 'title2', 'title3', 'subtitle', 'sub2', 'body2', 'sub3', 'body3', 'caption']
   };
@@ -1442,10 +1558,8 @@
   function syncAiUI() {
     const k = document.getElementById('aiKey');
     const m = document.getElementById('aiModel');
-    const s = document.getElementById('aiStyle');
     if (k) k.value = aiCfg.key;
     if (m) m.value = aiCfg.model;
-    if (s) s.value = aiCfg.style;
   }
   function aiStatus(msg, kind) {
     const el = document.getElementById('aiStatus');
@@ -1462,13 +1576,16 @@
     b.textContent = on ? '⏳ 생성 중…' : AI_BTN_TEXT;
   }
 
-  /** 기사 본문 + 스타일 → Gemini 프롬프트 */
+  /** 기사 본문 + 언어(프리셋) → Gemini 프롬프트 */
   function aiPrompt(src, style) {
     const ja = style === 'ja';
-    const L = [
+    const head = [
       '너는 인스타그램 카드뉴스(3장)와 릴스에 쓸 문구를 쓰는 카피라이터야.',
       '아래 [기사 본문]에 드러난 사실만 근거로 써. 없는 숫자·인용·전문가 이름을 만들지 말고, 과장된 추측도 넣지 마.',
-      '결과는 설명·인사·코드펜스 없이 JSON 객체 하나로만 답해. 키는 badge, title1, title2, title3, subtitle, sub2, body2, sub3, body3, caption (전부 문자열) 이야.',
+      '결과는 설명·인사·코드펜스 없이 JSON 객체 하나로만 답해. 키는 badge, title1, title2, title3, subtitle, sub2, body2, sub3, body3, caption, koreanNote (전부 문자열) 이야.'
+    ];
+
+    const koRules = [
       '',
       '[1장 커버]',
       '- badge: 짧은 분류 8자 안팎 (예: "해외 이슈", "동물 · 화제")',
@@ -1477,18 +1594,34 @@
       '[2장 본문1] sub2 소제목(8~14자) / body2 본문 2~3문장(80~110자)',
       '[3장 본문2] sub3 소제목(8~14자) / body3 본문 2~3문장(80~110자), 핵심 팩트와 사람들 반응을 읽기 쉽게',
       '[캡션] caption: 인스타 체류 시간을 높이는 450~600자 본문 요약 + 댓글 유도 질문 1줄 + 관련 해시태그 6개 내외',
-      '제목 줄에는 줄바꿈을 넣지 말고, body2·body3에는 읽기 좋게 \\n 로 줄바꿈을 꼭 넣어 줘.',
+      '[언어] 한국어 반말 구어체로 짧고 후킹하게. 브랜드 핸들은 @winnie__zip 이고 캡션 끝에 자연스럽게 한 번만 넣어도 돼.',
+      'koreanNote 는 빈 문자열("")로 둔다.',
+      '제목 줄에는 줄바꿈을 넣지 말고, body2·body3에는 읽기 좋게 줄바꿈을 꼭 넣어 줘.'
+    ];
+
+    const jaRules = [
       '',
-      ja
-        ? '[言語] すべての出力を自然な日本語で書いてください。海外ニュース・動物の話題を扱う日本語の雑学アカウントのトーン（やわらかい常体、絵文字は0〜2個）。文字数は日本語基準で title 15〜22字、body 100〜150字、caption 350〜500字に合わせてください。'
-        : '[언어] 한국어 반말 구어체로 짧고 후킹하게. 브랜드 핸들은 @winnie__zip 이고 캡션 끝에 자연스럽게 한 번만 넣어도 돼.',
+      '[モード] 日本語モード。出力は 100% 日本語（ハングル・韓国語の混入禁止）。入力が韓国語の記事でも、全部自然な日本語に書き直す。',
+      '[読者] 日本のインスタグラム利用者（20〜30代が多い）。思わず指が止まる自然な日本語の常体で書く。直訳調・硬い漢語・「ですます」の連続は禁止。',
+      '',
+      '[1枚目 カバー]',
+      '- badge: 4〜6文字の日本語（例: 海外・話題 / 動物・話題 / 映画・話題）',
+      '- title1・title2・title3: それぞれ8〜12文字の日本語。1行ずつ意味が通る短いフックで、結末は言い切らない。2行目(title2)を一番刺さる行にする。句点・読点・改行は入れない。',
+      '- subtitle: 12〜20文字の日本語1行',
+      '[2枚目 本文1] sub2 小見出し8〜14文字 / body2 日本語2〜3文（60〜100文字）',
+      '[3枚目 本文2] sub3 小見出し8〜14文字 / body3 日本語2〜3文（60〜100文字） 事実となったときの読者の反応が伝わるように',
+      '[キャプション] caption: 日本のインスタで読みたくなる日本語キャプション300〜450文字（最初の1文で引き込み、最後にコメントを誘う問いかけ1行）＋ 日本語ハッシュタグ6〜8個（#海外の話題 など）。ブランド名（@sekai__clip）は入れない。',
+      '[韓国語メモ] koreanNote: 上で書いた内容を、다예 님이 확인용으로만 볼 수 있게 자연스러운 한국어 1〜2줄로 요약（게시물には 쓰지 않음）。',
+      'title1〜3には改行を入れない。body2・body3は1文ごとに改行を入れて読みやすく（JSON文字列なので改行はエスケープして出力）。'
+    ];
+
+    return head.concat(ja ? jaRules : koRules).concat([
       '',
       '[기사 본문]',
       '---',
       String(src || '').slice(0, 12000),
       '---'
-    ];
-    return L.join('\n');
+    ]).join('\n');
   }
 
   /** 코드펜스나 잡음이 섞여도 JSON만 안전하게 꺼내기 */
@@ -1529,7 +1662,7 @@
   function applyAiResult(obj) {
     const t = function (v) { return String(v == null ? '' : v).replace(/\r/g, '').trim(); };
     const s = state.slides;
-    s[0].badge = t(obj.badge) || s[0].badge || '이슈';
+    s[0].badge = t(obj.badge) || s[0].badge || ((state.preset === 'ja') ? '話題' : '이슈');
     s[0].lines = [t(obj.title1), t(obj.title2), t(obj.title3)];
     s[0].accents = [false, true, false];
     s[0].sub = t(obj.subtitle);
@@ -1539,13 +1672,14 @@
     s[2].badge = s[2].badge || '3 / 3';
     s[2].subhead = t(obj.sub3);
     s[2].body = t(obj.body3);
-    if (!t(s[2].notice)) s[2].notice = '@winnie__zip 팔로우하고 더 보기';
+    if (!t(s[2].notice)) s[2].notice = PRESETS[state.preset === 'ja' ? 'ja' : 'ko'].notice;
     touch();
     syncUI();
     setSlide(0);
     render();
     saveState();
     setCaption(t(obj.caption));
+    setKoNote(t(obj.koreanNote));
   }
 
   function setCaption(text) {
@@ -1553,6 +1687,15 @@
     const wrap = document.getElementById('aiOutWrap');
     if (box) box.value = String(text == null ? '' : text);
     if (wrap) wrap.classList.toggle('on', !!String(text || '').trim());
+  }
+
+  /** 일본어 모드에서만 보이는 한국어 뜻풀이 (확인용) */
+  function setKoNote(text) {
+    const box = document.getElementById('aiKo');
+    const wrap = document.getElementById('aiKoWrap');
+    const v = String(text == null ? '' : text).trim();
+    if (box) box.value = v;
+    if (wrap) wrap.style.display = (v && state.preset === 'ja') ? 'block' : 'none';
   }
 
   async function copyCaption() {
@@ -1606,9 +1749,8 @@
     }
 
     const modelEl = document.getElementById('aiModel');
-    const styleEl = document.getElementById('aiStyle');
     const model = (modelEl && AI_MODELS.indexOf(modelEl.value) >= 0) ? modelEl.value : aiCfg.model;
-    const style = (styleEl && styleEl.value === 'ja') ? 'ja' : 'ko';
+    const style = (state.preset === 'ja') ? 'ja' : 'ko';
     aiCfg.key = apiKey;
     aiCfg.model = model;
     aiCfg.style = style;
@@ -1700,6 +1842,57 @@
     $$('.chip[data-theme]').forEach(function (b) { b.classList.toggle('on', b.dataset.theme === state.theme); });
   }
 
+  /* ── 8-0. 언어 · 계정 프리셋 (🇰🇷 @winnie__zip ↔ 🇯🇵 @sekai__clip) ── */
+  /** 프리셋에 맞춰 화면(버튼·브랜드·플레이스홀더·강조색)만 맞춘다. 글 값은 건드리지 않는다. */
+  function syncPresetUI(name) {
+    const p = PRESETS[name === 'ja' ? 'ja' : 'ko'];
+    document.body.classList.toggle('preset-ja', p.name === 'ja');
+    $$('.preset-btn').forEach(function (b) { b.classList.toggle('on', b.dataset.preset === p.name); });
+    const bh = document.getElementById('brandHandle');
+    if (bh) bh.textContent = p.watermark;
+    const bn = document.getElementById('brandName');
+    if (bn) bn.textContent = p.brand;
+    document.title = p.docTitle;
+
+    const ph = function (bind, val) {
+      const el = document.querySelector('[data-bind="' + bind + '"]');
+      if (el) el.setAttribute('placeholder', val);
+    };
+    ph('watermark', p.watermark);
+    ph('slides.0.badge', p.badge0);
+    ph('slides.0.sub', p.sub);
+    ph('slides.1.subhead', p.subhead);
+    ph('slides.2.subhead', p.subhead);
+    ph('slides.1.body', p.body);
+    ph('slides.2.body', p.body);
+    ph('slides.2.notice', p.notice);
+
+    const src = document.getElementById('aiSource');
+    if (src) src.setAttribute('placeholder', p.aiSource);
+    const note = document.getElementById('aiStyleNote');
+    if (note) note.textContent = p.aiNote;
+    if (p.name !== 'ja') setKoNote('');
+  }
+
+  /** 프리셋을 실제 값에 적용: 워터마크 · 포인트 컬러 · 기본 글꼴 */
+  function applyPreset(name) {
+    const p = PRESETS[name === 'ja' ? 'ja' : 'ko'];
+    state.preset = p.name;
+    state.watermark = p.watermark;
+    state.colors = Object.assign({}, state.colors, { accent: p.accent, badge: p.accent });
+    state.theme = 'custom';
+    state.font = p.font;
+    aiCfg.style = p.name;
+    saveAiCfg();
+    syncUI();
+    syncThemeChips();
+    syncPresetUI(p.name);
+    loadFont(state.font);
+    touch();
+    render();
+    saveState();
+  }
+
   /* 이벤트: 포맷 */
   $$('input[name=fmt]').forEach(function (r) {
     r.addEventListener('change', function () {
@@ -1729,6 +1922,16 @@
       render();
       saveState();
       toast(b.textContent + ' 테마 적용');
+    });
+  });
+
+  /* 이벤트: 언어 · 계정 프리셋 */
+  $$('.preset-btn').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const name = b.dataset.preset === 'ja' ? 'ja' : 'ko';
+      if (state.preset === name) return;
+      applyPreset(name);
+      toast(name === 'ja' ? '🇯🇵 日本語 (@sekai__clip) 로 바꿨어요' : '🇰🇷 한국어 (@winnie__zip) 로 바꿨어요');
     });
   });
 
@@ -1816,10 +2019,6 @@
     aiCfg.model = AI_MODELS.indexOf(e.target.value) >= 0 ? e.target.value : AI_DEFAULT_MODEL;
     saveAiCfg();
   });
-  document.getElementById('aiStyle').addEventListener('change', function (e) {
-    aiCfg.style = e.target.value === 'ja' ? 'ja' : 'ko';
-    saveAiCfg();
-  });
   document.getElementById('aiSource').addEventListener('input', function () {
     if (document.getElementById('aiStatus').classList.contains('err')) aiStatus('', '');
   });
@@ -1836,6 +2035,9 @@
     state = defaultState(state.format, false);
     setSlide(0);
     syncUI();
+    syncPresetUI(state.preset);
+    syncThemeChips();
+    setKoNote('');
     touch();
     render();
     saveState();
@@ -1843,17 +2045,18 @@
   });
 
   function applySample() {
-    state.slides[0].badge = SAMPLE.slides[0].badge;
-    state.slides[0].lines = SAMPLE.slides[0].lines.slice();
-    state.slides[0].accents = SAMPLE.slides[0].accents.slice();
-    state.slides[0].sub = SAMPLE.slides[0].sub;
-    state.slides[1].badge = SAMPLE.slides[1].badge;
-    state.slides[1].subhead = SAMPLE.slides[1].subhead;
-    state.slides[1].body = SAMPLE.slides[1].body;
-    state.slides[2].badge = SAMPLE.slides[2].badge;
-    state.slides[2].subhead = SAMPLE.slides[2].subhead;
-    state.slides[2].body = SAMPLE.slides[2].body;
-    state.slides[2].notice = SAMPLE.slides[2].notice;
+    const S = (state.preset === 'ja') ? SAMPLE_JA : SAMPLE;
+    state.slides[0].badge = S.slides[0].badge;
+    state.slides[0].lines = S.slides[0].lines.slice();
+    state.slides[0].accents = S.slides[0].accents.slice();
+    state.slides[0].sub = S.slides[0].sub;
+    state.slides[1].badge = S.slides[1].badge;
+    state.slides[1].subhead = S.slides[1].subhead;
+    state.slides[1].body = S.slides[1].body;
+    state.slides[2].badge = S.slides[2].badge;
+    state.slides[2].subhead = S.slides[2].subhead;
+    state.slides[2].body = S.slides[2].body;
+    state.slides[2].notice = S.slides[2].notice;
     syncUI();
     touch();
     render();
@@ -1879,6 +2082,7 @@
   function boot() {
     syncUI();
     syncAiUI();
+    syncPresetUI(state.preset);
     syncFormatLabels();
     setSlide(0);
     render();
@@ -1912,6 +2116,10 @@
     stopRecord: function () { if (window.__stopWinnieRecord) window.__stopWinnieRecord(); },
     setImage: setImage,
     pickMime: pickMime,
+    applyPreset: applyPreset,
+    syncPresetUI: syncPresetUI,
+    setKoNote: setKoNote,
+    PRESETS: PRESETS,
     FORMAT: FORMAT,
     FONTS: FONTS,
     fontStack: fontStack,
