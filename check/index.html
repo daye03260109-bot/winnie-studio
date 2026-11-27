@@ -274,6 +274,7 @@
   .day.lv4 .num{background:linear-gradient(140deg,#FF9EC3,#C9B6FF);color:#fff;box-shadow:0 3px 9px rgba(200,140,210,.35);}
   .day.today .num{outline:2px solid rgba(255,158,195,.7);outline-offset:2px;}
   .day.sel .num{box-shadow:0 0 0 2px #3A2E3C;}
+  .day.today.sel .num{box-shadow:none;}
   .day.future .num{opacity:.32;}
   .day:active .num{transform:scale(.92);}
   .blank{height:1px;}
@@ -470,7 +471,7 @@
 
   <section class="card cal" aria-label="이번 달 기록">
     <div class="cal-head">
-      <h2>이번 달 기록</h2>
+      <h2 id="calTitle">이번 달 기록</h2>
       <div class="cal-nav">
         <button id="prevM" aria-label="이전 달">‹</button>
         <span id="calLabel">2026년 11월</span>
@@ -815,7 +816,7 @@
     dateLine: $('dateLine'), greet: $('greet'), streak: $('streak'),
     pct: $('pct'), pctSub: $('pctSub'), barFill: $('barFill'), bar: $('bar'), msg: $('msg'),
     list: $('list'), countChip: $('countChip'), hint: $('hint'),
-    calLabel: $('calLabel'), calGrid: $('calGrid'), calSum: $('calSum'), calDetail: $('calDetail'),
+    calLabel: $('calLabel'), calGrid: $('calGrid'), calSum: $('calSum'), calDetail: $('calDetail'), calTitle: $('calTitle'),
     prevM: $('prevM'), nextM: $('nextM'),
     sheetWrap: $('sheetWrap'), sheetTitle: $('sheetTitle'), emojiGrid: $('emojiGrid'),
     emojiPreview: $('emojiPreview'), nameInput: $('nameInput'), seg: $('seg'),
@@ -962,6 +963,7 @@
   function renderCalendar() {
     var y = view.y, m = view.m;
     el.calLabel.textContent = y + '년 ' + (m + 1) + '월';
+    el.calTitle.textContent = (y === nowP.y && m === nowP.m) ? '이번 달 기록' : (m + 1) + '월 기록';
     el.nextM.disabled = (y > nowP.y) || (y === nowP.y && m >= nowP.m);
 
     var first = new Date(Date.UTC(y, m, 1)).getUTCDay();
