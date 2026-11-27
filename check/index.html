@@ -212,6 +212,33 @@
   }
   .more:active{color:#9A8D9C;}
 
+  /* ── 큰 목표 카운터(핀터레스트 40개 등) ── */
+  .item.count-item.big{padding-bottom:13px;}
+  .item.big .counter{padding-left:10px;padding-right:6px;gap:7px;}
+  .counter-mid.big{justify-content:flex-start;gap:5px;min-height:34px;padding:0 2px;cursor:default;}
+  .cnum{font-size:27px;font-weight:900;line-height:1;letter-spacing:-.045em;color:var(--it-ink,#B04A2A);min-width:36px;}
+  .cof{font-size:11.5px;font-weight:800;color:#B7A6B6;letter-spacing:-.01em;white-space:nowrap;}
+  .item.done .cof{color:var(--it-ink,#B98AA6);}
+  .cbar{height:7px;border-radius:99px;background:#F6EFF6;margin:7px 12px 0 52px;overflow:hidden;}
+  .cbar i{display:block;height:100%;width:0%;border-radius:99px;
+    background:linear-gradient(90deg,var(--it-bg,#FFDFCF),var(--it-ink,#B34F22));
+    transition:width .4s cubic-bezier(.22,.8,.3,1);}
+  .quick{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:11px 6px 0 0;}
+  .quick button{
+    height:43px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;font-weight:900;letter-spacing:-.01em;
+    background:var(--it-soft,#FFF5EF);color:var(--it-ink,#B34F22);
+    border:1.5px solid #FFFFFF;box-shadow:0 2px 7px rgba(190,140,170,.12);
+    transition:transform .1s;
+  }
+  .quick button:active{transform:scale(.95);}
+  .quick.undo{margin-top:6px;}
+  .quick.undo button{
+    height:35px;border-radius:12px;font-size:12px;font-weight:800;letter-spacing:0;
+    background:#FBF7FB;color:#A99CAB;border-color:transparent;box-shadow:none;
+  }
+  .quick.undo button[data-armed]{background:#FFF0F5;color:#D6336C;}
+
   .empty{
     background:#fff;border-radius:20px;padding:30px 18px;text-align:center;
     box-shadow:var(--shadow);color:var(--sub);font-size:13.5px;font-weight:600;
@@ -424,6 +451,12 @@
     .item{padding-right:6px;gap:8px;}
     .more{width:26px;}
     .counter{padding-left:46px;gap:7px;}
+    .item.big .counter{padding-left:6px;}
+    .cnum{font-size:24px;min-width:32px;}
+    .cof{font-size:11px;}
+    .cbar{margin-left:46px;}
+    .quick{gap:5px;}
+    .quick button{height:40px;border-radius:13px;font-size:13px;}
     .emoji-grid{grid-template-columns:repeat(7,1fr);}
   }
   @media (prefers-reduced-motion:reduce){
@@ -536,9 +569,11 @@
         <button type="button" id="tPlus" aria-label="횟수 늘리기">+</button>
         <div class="chips" id="tChips">
           <button type="button" data-t="2">2</button>
-          <button type="button" data-t="3">3</button>
           <button type="button" data-t="5">5</button>
           <button type="button" data-t="10">10</button>
+          <button type="button" data-t="20">20</button>
+          <button type="button" data-t="40">40</button>
+          <button type="button" data-t="100">100</button>
         </div>
       </div>
     </div>
@@ -565,14 +600,14 @@
   /* ─────────── 저장소 ─────────── */
   var KEY = 'daye_check_v1';
 
-  var APP_VERSION = 4;
+  var APP_VERSION = 5;
 
   var DEFAULT_ITEMS = [
     { id: 'knit',      emoji: '📦', name: '니트레터링 오늘 보낼 거 확인', desc: '주문·발송 건 유무 확인하기', type: 'check', target: 1, color: 1 },
     { id: 'thread',    emoji: '🧵', name: '스레드 글 올리기',             type: 'count', target: 5, color: 4 },
     { id: 'winnie',    emoji: '📱', name: '인스타 @winnie__zip 업로드',   type: 'check', target: 1, color: 0 },
     { id: 'sekai',     emoji: '🇯🇵', name: '인스타 @sekai__clip 업로드',  type: 'check', target: 1, color: 3 },
-    { id: 'pinterest', emoji: '📌', name: '핀터레스트 업로드',            type: 'check', target: 1, color: 5 },
+    { id: 'pinterest', emoji: '📌', name: '핀터레스트 업로드',            type: 'count', target: 40, color: 5 },
     { id: 'inflearn',  emoji: '🎓', name: '인피디 4기 강의·숙제',          type: 'check', target: 1, color: 2, startDate: '2026-12-02' }
   ];
 
@@ -623,7 +658,7 @@
         name: it.name,
         desc: (typeof it.desc === 'string' ? it.desc : '').slice(0, 40),
         type: it.type === 'count' ? 'count' : 'check',
-        target: Math.max(1, Math.min(30, parseInt(it.target, 10) || 1)),
+        target: Math.max(1, Math.min(100, parseInt(it.target, 10) || 1)),
         color: parseInt(it.color, 10),
         startDate: validStartDate(it.startDate)
       };
@@ -657,7 +692,19 @@
           kit.desc = '주문·발송 건 유무 확인하기';
         }
       }
-      state.v = APP_VERSION;
+      state.v = 4;
+    }
+
+    if (!(state.v >= 5)) {
+      // v5: 핀터레스트는 '하루 40개' 누적 카운터 (기존 체크 기록·다른 항목은 그대로 둔다)
+      for (var p5 = 0; p5 < state.items.length; p5++) {
+        var pit = state.items[p5];
+        if (pit.id === 'pinterest' && pit.type === 'check') {
+          pit.type = 'count';
+          pit.target = 40;
+        }
+      }
+      state.v = 5;
     }
   }
 
@@ -848,28 +895,51 @@
                '<div class="item-txt" data-act="main">' +
                  '<span class="name">' + esc(it.name) + '</span>' +
                  '<span class="sub">' + (it.type === 'count'
-                    ? (done ? '완료!' : '하루 ' + it.target + '회')
+                    ? (done ? '완료! · ' + v + '개 누적' : '하루 ' + it.target + (it.target >= 10 ? '개' : '회'))
                     : (it.desc || (done ? '완료!' : '한 번 체크'))) + '</span>' +
                '</div>';
 
     if (it.type === 'count') {
-      var dots = '<span class="dots-empty"></span>';
-      if (it.target <= 10) {
+      var big = it.target >= 10;
+      var over = v > it.target;
+      var midHtml, quickHtml = '';
+
+      if (big) {
+        midHtml = '<div class="counter-mid big" data-act="main" aria-label="' + esc(it.name) + ' ' + v + '개, 목표 ' + it.target + '개">' +
+                    '<b class="cnum">' + v + '</b>' +
+                    '<span class="cof">/ ' + it.target + '개 ' + (done ? (over ? '· 초과!' : '완료!') : '누적') + '</span>' +
+                  '</div>';
+        var qn = [5, 6, 7, 8, 9, 10], qi;
+        quickHtml = '<div class="quick">';
+        for (qi = 0; qi < qn.length; qi++) {
+          quickHtml += '<button type="button" data-act="add" data-n="' + qn[qi] + '" aria-label="' + qn[qi] + '개 더하기">+' + qn[qi] + '</button>';
+        }
+        quickHtml += '</div>' +
+          '<div class="quick undo">' +
+            '<button type="button" data-act="add" data-n="-5" aria-label="5개 줄이기">−5</button>' +
+            '<button type="button" data-act="add" data-n="-10" aria-label="10개 줄이기">−10</button>' +
+            '<button type="button" data-act="reset" aria-label="오늘 누적 기록 지우기">리셋</button>' +
+          '</div>';
+      } else {
         var ds = '';
-        for (var i = 0; i < it.target; i++) ds += '<i class="' + (i < v ? 'on' : '') + '"></i>';
-        dots = '<span class="dots">' + ds + '</span>';
+        for (var di = 0; di < it.target; di++) ds += '<i class="' + (di < v ? 'on' : '') + '"></i>';
+        midHtml = '<div class="counter-mid" data-act="main">' +
+                    '<span class="dots">' + ds + '</span>' +
+                    '<span class="count-pill">' + v + '<em>/' + it.target + '</em></span>' +
+                  '</div>';
       }
-      return '<div class="item count-item' + (done ? ' done' : '') + '" data-id="' + esc(it.id) + '"' + style + '>' +
+
+      return '<div class="item count-item' + (big ? ' big' : '') + (done ? ' done' : '') + '" data-id="' + esc(it.id) + '"' + style + '>' +
                '<div class="item-top">' + head +
                  '<button class="more" data-act="edit" aria-label="' + esc(it.name) + ' 수정">⋯</button>' +
                '</div>' +
                '<div class="counter">' +
                  '<button class="step" data-act="dec" aria-label="하나 줄이기"' + (v <= 0 ? ' disabled' : '') + '>−</button>' +
-                 '<div class="counter-mid" data-act="main">' + dots +
-                   '<span class="count-pill">' + v + '<em>/' + it.target + '</em></span>' +
-                 '</div>' +
-                 '<button class="plus' + (done ? ' done' : '') + '" data-act="inc" aria-label="하나 늘리기"' + (done ? ' disabled' : '') + '>+</button>' +
+                 midHtml +
+                 '<button class="plus' + (!big && done ? ' done' : '') + '" data-act="inc" aria-label="하나 늘리기"' + (!big && done ? ' disabled' : '') + '>+</button>' +
                '</div>' +
+               (big ? '<div class="cbar"><i style="width:' + Math.min(100, Math.round(v / it.target * 100)) + '%"></i></div>' : '') +
+               quickHtml +
              '</div>';
     }
 
@@ -1049,7 +1119,7 @@
     var v = getVal(TODAY, it.id);
     var wasDone = v >= it.target;
     var nv;
-    if (it.type === 'count') nv = Math.min(it.target, v + 1);
+    if (it.type === 'count') nv = Math.min(999, v + 1);
     else nv = wasDone ? 0 : it.target;
     if (nv === v) { buzz(5); return; }
     setVal(TODAY, it.id, nv);
@@ -1065,6 +1135,49 @@
     afterChange(it, wasDone, nv >= it.target);
   }
 
+  /* +5 ~ +10 같은 빠른 누적 */
+  function addVal(it, n) {
+    if (!n) return;
+    var v = getVal(TODAY, it.id);
+    var wasDone = v >= it.target;
+    var nv = Math.max(0, Math.min(999, v + n));
+    if (nv === v) { buzz(5); return; }
+    setVal(TODAY, it.id, nv);
+    afterChange(it, wasDone, nv >= it.target);
+    var unit = it.target >= 10 ? '개' : '회';
+    if (n > 0) {
+      showToast(it.emoji + ' ' + nv + unit + ' 누적' + (nv >= it.target ? ' · 목표 달성!' : ' / ' + it.target + unit));
+    } else {
+      showToast(it.emoji + ' ' + nv + ' / ' + it.target + unit);
+    }
+  }
+
+  /* 리셋은 한 번 더 눌렀을 때만 (실수 방지) */
+  var resetTimer = null, resetEl = null;
+  function disarmReset() {
+    clearTimeout(resetTimer);
+    if (resetEl) { resetEl.removeAttribute('data-armed'); resetEl.textContent = '리셋'; }
+    resetEl = null;
+  }
+  function actReset(it, btn) {
+    if (btn && btn.getAttribute('data-armed') === '1') {
+      disarmReset();
+      var v = getVal(TODAY, it.id);
+      if (v <= 0) return;
+      setVal(TODAY, it.id, 0);
+      afterChange(it, v >= it.target, false);
+      showToast('오늘 기록을 지웠어요');
+      return;
+    }
+    disarmReset();
+    if (!btn) return;
+    resetEl = btn;
+    btn.setAttribute('data-armed', '1');
+    btn.textContent = '한 번 더';
+    buzz(8);
+    resetTimer = setTimeout(disarmReset, 3000);
+  }
+
   el.list.addEventListener('click', function (e) {
     if (lpFired) { lpFired = false; return; }
     var itemEl = e.target.closest('.item');
@@ -1075,6 +1188,8 @@
     var act = actEl ? actEl.getAttribute('data-act') : 'main';
     if (act === 'edit') { openSheet(it); return; }
     if (act === 'dec') { actDec(it); return; }
+    if (act === 'add') { addVal(it, parseInt(actEl.getAttribute('data-n'), 10) || 0); return; }
+    if (act === 'reset') { actReset(it, actEl); return; }
     actMain(it);
   });
 
@@ -1131,7 +1246,7 @@
     el.targetField.style.display = sheetType === 'count' ? '' : 'none';
     el.tVal.textContent = sheetTarget;
     el.tMinus.disabled = sheetTarget <= 2;
-    el.tPlus.disabled = sheetTarget >= 30;
+    el.tPlus.disabled = sheetTarget >= 100;
     var chips = el.tChips.querySelectorAll('button');
     for (var c = 0; c < chips.length; c++) chips[c].classList.toggle('on', +chips[c].getAttribute('data-t') === sheetTarget);
     el.delBtn.hidden = !editingId;
@@ -1189,7 +1304,7 @@
   });
 
   el.tMinus.addEventListener('click', function () { if (sheetTarget > 2) { sheetTarget--; paintSheet(); } });
-  el.tPlus.addEventListener('click', function () { if (sheetTarget < 30) { sheetTarget++; paintSheet(); } });
+  el.tPlus.addEventListener('click', function () { if (sheetTarget < 100) { sheetTarget++; paintSheet(); } });
   el.tChips.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-t]');
     if (!b) return;
@@ -1206,14 +1321,12 @@
       el.nameInput.focus();
       return;
     }
-    var target = sheetType === 'count' ? Math.max(2, Math.min(30, sheetTarget)) : 1;
+    var target = sheetType === 'count' ? Math.max(2, Math.min(100, sheetTarget)) : 1;
 
     if (editingId) {
       var it = findItem(editingId);
       if (it) {
         it.emoji = sheetEmoji; it.name = name; it.type = sheetType; it.target = target;
-        var day = ensureDay(TODAY, true);
-        if ((day.values[it.id] || 0) > target) day.values[it.id] = target;
       }
       save(); renderAll(); closeSheet();
       showToast('수정했어요');
