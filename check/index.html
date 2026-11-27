@@ -1594,7 +1594,7 @@
         for (var i = 0; i < day.snapshot.length; i++) if (day.snapshot[i].id === editingId) { s = day.snapshot[i]; break; }
         if (!s) { s = { id: editingId, target: target, startDate: null }; day.snapshot.push(s); }
         s.emoji = sheetEmoji; s.name = name; s.type = sheetType; s.target = target;
-        if (s.color == null || s.color === '') s.color = nextColor();
+        if (!findItem(editingId) && (s.color == null || s.color === '')) s.color = nextColor();
         if (memo) { day.notes = day.notes || {}; day.notes[editingId] = memo; }
         else if (day.notes) delete day.notes[editingId];
         save(); renderAll(); closeSheet();
