@@ -150,6 +150,12 @@
   }
   .item:active{transform:scale(.995);}
   .item.done{background:linear-gradient(180deg,var(--it-soft,#FFF6FA),#FFFFFF);}
+  .item.count-item{display:block;}
+  .item-top{display:flex;align-items:center;gap:10px;}
+  .item-top .item-txt{flex:1 1 auto;}
+  .counter{display:flex;align-items:center;gap:9px;margin-top:9px;padding-left:52px;padding-right:8px;}
+  .counter-mid{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:26px;cursor:pointer;}
+  .counter .count-pill{min-width:42px;}
   .emoji{
     flex:0 0 auto;width:42px;height:42px;border-radius:14px;
     display:grid;place-items:center;font-size:21px;
@@ -414,6 +420,7 @@
     .pct{font-size:35px;}
     .item{padding-right:6px;gap:8px;}
     .more{width:20px;}
+    .counter{padding-left:46px;gap:7px;}
     .emoji-grid{grid-template-columns:repeat(7,1fr);}
   }
   @media (prefers-reduced-motion:reduce){
@@ -832,32 +839,40 @@
     var v = getVal(TODAY, it.id);
     var done = v >= it.target;
     var col = colorOf(it);
-    var sub, dots = '';
+    var style = ' style="--it-bg:' + col.bg + ';--it-ink:' + col.ink + ';--it-soft:' + col.soft + '"';
+
+    var head = '<span class="emoji" data-act="main">' + esc(it.emoji) + '</span>' +
+               '<div class="item-txt" data-act="main">' +
+                 '<span class="name">' + esc(it.name) + '</span>' +
+                 '<span class="sub">' + (it.type === 'count'
+                    ? (done ? '완료!' : '하루 ' + it.target + '회')
+                    : (it.desc || (done ? '완료!' : '한 번 체크'))) + '</span>' +
+               '</div>';
+
     if (it.type === 'count') {
-      sub = v + ' / ' + it.target + '회';
+      var dots = '<span class="dots-empty"></span>';
       if (it.target <= 10) {
         var ds = '';
         for (var i = 0; i < it.target; i++) ds += '<i class="' + (i < v ? 'on' : '') + '"></i>';
         dots = '<span class="dots">' + ds + '</span>';
       }
-    } else {
-      sub = it.desc || (done ? '완료!' : '한 번 체크');
+      return '<div class="item count-item' + (done ? ' done' : '') + '" data-id="' + esc(it.id) + '"' + style + '>' +
+               '<div class="item-top">' + head +
+                 '<button class="more" data-act="edit" aria-label="' + esc(it.name) + ' 수정">⋯</button>' +
+               '</div>' +
+               '<div class="counter">' +
+                 '<button class="step" data-act="dec" aria-label="하나 줄이기"' + (v <= 0 ? ' disabled' : '') + '>−</button>' +
+                 '<div class="counter-mid" data-act="main">' + dots +
+                   '<span class="count-pill">' + v + '<em>/' + it.target + '</em></span>' +
+                 '</div>' +
+                 '<button class="plus' + (done ? ' done' : '') + '" data-act="inc" aria-label="하나 늘리기"' + (done ? ' disabled' : '') + '>+</button>' +
+               '</div>' +
+             '</div>';
     }
-    var ctrl;
-    if (it.type === 'count') {
-      ctrl = '<button class="step" data-act="dec" aria-label="하나 줄이기"' + (v <= 0 ? ' disabled' : '') + '>−</button>' +
-             '<span class="count-pill">' + v + '<em>/' + it.target + '</em></span>' +
-             '<button class="plus' + (done ? ' done' : '') + '" data-act="inc" aria-label="하나 늘리기"' + (done ? ' disabled' : '') + '>+</button>';
-    } else {
-      ctrl = '<button class="check' + (done ? ' on' : '') + '" data-act="inc" aria-pressed="' + done + '" aria-label="' + esc(it.name) + ' 완료 체크">✓</button>';
-    }
-    return '<div class="item' + (done ? ' done' : '') + '" data-id="' + esc(it.id) + '"' +
-             ' style="--it-bg:' + col.bg + ';--it-ink:' + col.ink + ';--it-soft:' + col.soft + '">' +
-             '<span class="emoji" data-act="main">' + esc(it.emoji) + '</span>' +
-             '<div class="item-txt" data-act="main">' +
-               '<span class="name">' + esc(it.name) + '</span>' +
-               '<span class="sub">' + sub + (dots ? ' ' + dots : '') + '</span>' +
-             '</div>' + ctrl +
+
+    return '<div class="item' + (done ? ' done' : '') + '" data-id="' + esc(it.id) + '"' + style + '>' +
+             head +
+             '<button class="check' + (done ? ' on' : '') + '" data-act="inc" aria-pressed="' + done + '" aria-label="' + esc(it.name) + ' 완료 체크">✓</button>' +
              '<button class="more" data-act="edit" aria-label="' + esc(it.name) + ' 수정">⋯</button>' +
            '</div>';
   }
