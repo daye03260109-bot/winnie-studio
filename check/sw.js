@@ -1,5 +1,5 @@
 /* 다예 데일리 체크 — 오프라인에서도 열리도록 하는 최소 서비스워커 */
-var CACHE = 'daye-check-v3';
+var CACHE = 'daye-check-v4';
 var SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', function (e) {

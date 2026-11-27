@@ -330,6 +330,63 @@
   .howto b{color:#B4628A;}
   .foot{text-align:center;font-size:11px;font-weight:600;color:#C7B9C8;margin-top:16px;line-height:1.6;}
 
+  /* ── 날짜 이동 · 지난 기록 ── */
+  .daynav{display:flex;align-items:center;gap:8px;position:relative;margin:-2px 0 11px;}
+  .dn-btn{
+    flex:0 0 auto;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+    font-size:21px;font-weight:700;line-height:1;color:#9A7E96;
+    background:#FBF3F9;border:1px solid #F6E9F4;
+  }
+  .dn-btn:active{transform:scale(.94);}
+  .dn-btn:disabled{opacity:.26;}
+  .dn-label{
+    flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;
+    padding:4px 2px;border-radius:12px;cursor:pointer;
+  }
+  .dn-label:active{background:#FFFAFD;}
+  .dn-date{font-size:13px;font-weight:800;color:#6D5D6D;letter-spacing:-.01em;}
+  .dn-tag{
+    font-size:10.5px;font-weight:800;color:#B4628A;background:#FFF0F6;
+    border-radius:99px;padding:2px 8px;line-height:1.3;
+  }
+  .dn-tag.past{color:#7B5AB0;background:#F3ECFF;}
+
+  .pastbar{
+    display:flex;align-items:center;gap:8px;position:relative;
+    background:linear-gradient(135deg,#FFF3E4,#F5EDFF 70%,#E9F4FF);
+    border:1px solid #F2E3D9;border-radius:16px;padding:8px 9px 8px 12px;margin:0 0 13px;
+  }
+  .pastbar[hidden]{display:none;}
+  .pb-txt{flex:1 1 auto;min-width:0;font-size:11.5px;font-weight:800;color:#94684C;letter-spacing:-.01em;line-height:1.35;}
+  .pb-btn{
+    flex:0 0 auto;font-size:11.5px;font-weight:900;color:#7A4B8F;background:#fff;
+    border:1px solid #EBDCFF;border-radius:99px;padding:8px 11px;white-space:nowrap;
+    box-shadow:0 2px 6px rgba(160,120,190,.16);
+  }
+  .pb-btn:active{transform:scale(.96);}
+  .hero-head{align-items:center;}
+
+  .memo{
+    align-self:flex-start;max-width:100%;margin-top:2px;font-size:11px;font-weight:700;color:#A8795A;
+    background:#FFF7ED;border-radius:8px;padding:2px 7px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .seed-btn{
+    margin-top:12px;height:42px;padding:0 16px;border-radius:14px;
+    font-size:13px;font-weight:900;color:#8B4E7A;background:#FFF0F6;border:1.5px solid #FFD3E4;
+  }
+  .seed-btn:active{transform:scale(.96);}
+  .add .add-ic{font-size:18px;font-weight:600;line-height:1;}
+  .add .add-txt{font-size:14px;font-weight:800;}
+
+  #memoInput{
+    width:100%;height:46px;border-radius:14px;border:1.5px solid #F0E6EF;
+    background:#FDFAFD;padding:0 14px;font-size:14px;font-weight:700;outline:none;
+    transition:border-color .15s, background .15s;
+  }
+  #memoInput::placeholder{color:#C9BDCB;font-weight:600;}
+  #memoInput:focus{border-color:#FFB3CB;background:#fff;box-shadow:0 0 0 4px #FFF0F6;}
+
   /* ── 바텀시트 ── */
   .sheet-wrap{
     position:fixed;inset:0;z-index:50;background:rgba(58,42,58,.34);
@@ -472,12 +529,21 @@
     <button class="icon-add" id="addTop" aria-label="새 할 일 추가">+</button>
   </header>
 
-  <section class="card hero" aria-label="오늘 달성률">
-    <div class="hero-head">
-      <div>
-        <p class="date" id="dateLine">2026년 1월 1일 목요일</p>
-        <p class="greet" id="greet">오늘도 하나씩 해볼까요</p>
+  <section class="card hero" aria-label="달성률">
+    <div class="daynav">
+      <button type="button" class="dn-btn" id="prevDay" aria-label="이전 날 보기">‹</button>
+      <div class="dn-label" id="dnLabel" role="button" tabindex="0" aria-label="달력에서 날짜 고르기">
+        <p class="dn-date" id="dateLine">2026년 1월 1일 목요일</p>
+        <span class="dn-tag" id="dayTag">오늘</span>
       </div>
+      <button type="button" class="dn-btn" id="nextDay" aria-label="다음 날 보기">›</button>
+    </div>
+    <div class="pastbar" id="pastBar" hidden>
+      <span class="pb-txt" id="pastTxt"></span>
+      <button type="button" class="pb-btn" id="backToday">오늘로 돌아가기</button>
+    </div>
+    <div class="hero-head">
+      <p class="greet" id="greet">오늘도 하나씩 해볼까요</p>
       <div class="streak" id="streak">🔥 0일째</div>
     </div>
     <div class="pct-line">
@@ -492,7 +558,7 @@
 
   <section class="section" aria-label="오늘의 체크 목록">
     <div class="sec-head">
-      <h2>오늘의 체크</h2>
+      <h2 id="listTitle">오늘의 체크</h2>
       <span class="count-chip" id="countChip">0 / 0</span>
     </div>
     <div class="hint" id="hint">
@@ -501,7 +567,7 @@
     </div>
     <div class="list" id="list"></div>
     <div class="upcoming" id="upcoming" hidden></div>
-    <button class="add" id="addBtn"><span>+</span> 새 할 일 추가</button>
+    <button class="add" id="addBtn"><span class="add-ic">+</span><span class="add-txt" id="addLabel">새 할 일 추가</span></button>
   </section>
 
   <section class="card cal" aria-label="이번 달 기록">
@@ -578,6 +644,11 @@
       </div>
     </div>
 
+    <label class="field" id="memoField" hidden>
+      <span>메모 (이 날만)</span>
+      <input id="memoInput" type="text" maxlength="60" placeholder="예: 저녁에 몰아서 했음" autocomplete="off">
+    </label>
+
     <button class="save" id="saveBtn">저장하기</button>
     <button class="del" id="delBtn" hidden>이 할 일 삭제</button>
   </div>
@@ -600,7 +671,7 @@
   /* ─────────── 저장소 ─────────── */
   var KEY = 'daye_check_v1';
 
-  var APP_VERSION = 5;
+  var APP_VERSION = 6;
 
   var DEFAULT_ITEMS = [
     { id: 'knit',      emoji: '📦', name: '니트레터링 오늘 보낼 거 확인', desc: '주문·발송 건 유무 확인하기', type: 'check', target: 1, color: 1 },
@@ -706,6 +777,31 @@
       }
       state.v = 5;
     }
+
+    if (!(state.v >= 6)) {
+      // v6: 날짜 이동·지난 기록 확인/수정. 저장 구조는 그대로 두고 날짜별 메모 칸만 더한다.
+      state.v = 6;
+    }
+
+    // 저장된 날짜 형태 보정 (값·스냅샷·메모). 기록은 지우지 않는다.
+    Object.keys(state.days).forEach(function (k) {
+      var d = state.days[k];
+      if (!d || typeof d !== 'object') { delete state.days[k]; return; }
+      if (!d.values || typeof d.values !== 'object') d.values = {};
+      if (!Array.isArray(d.snapshot)) d.snapshot = [];
+      if (!d.notes || typeof d.notes !== 'object') d.notes = {};
+      d.snapshot = d.snapshot.filter(function (s) {
+        if (!s || typeof s.id !== 'string') return false;
+        if (typeof s.name === 'string' && s.name) return true; // 그날만 추가한 항목
+        return state.items.some(function (it) { return it.id === s.id; });
+      }).map(function (s) {
+        var t = parseInt(s.target, 10);
+        s.target = Math.max(1, Math.min(100, t > 0 ? t : 1));
+        if (s.startDate != null && !validStartDate(s.startDate)) s.startDate = null;
+        if (s.type && s.type !== 'count') s.type = 'check';
+        return s;
+      });
+    });
   }
 
   function save() {
@@ -757,6 +853,7 @@
 
   /* ─────────── 상태 계산 ─────────── */
   var TODAY = todayKey();
+  var viewDay = TODAY; // 지금 보고 있는 날짜 (과거 날짜도 열어서 고칠 수 있다)
 
   function validStartDate(v) {
     return (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) ? v : null;
@@ -764,8 +861,23 @@
   function isActiveOn(it, k) { return !it.startDate || it.startDate <= k; }
   function shortDate(k) {
     var p = parseKey(k);
-    return (p.m + 1) + '월 ' + p.d + '일(' + weekday(k) + ')';
+    return (p.m + 1) + '월 ' + p.d + '일 (' + weekday(k) + ')';
   }
+  function longDate(k) {
+    var p = parseKey(k);
+    return p.y + '년 ' + (p.m + 1) + '월 ' + p.d + '일 ' + weekday(k) + '요일';
+  }
+  function dayRelation(k) {
+    var a = Date.parse(todayKey() + 'T00:00:00Z');
+    var b = Date.parse(k + 'T00:00:00Z');
+    var diff = Math.round((a - b) / 86400000);
+    if (diff === 0) return '오늘';
+    if (diff === 1) return '어제';
+    if (diff === 2) return '그저께';
+    if (diff > 0) return diff + '일 전';
+    return (-diff) + '일 후';
+  }
+  function floorDay() { return addDays(todayKey(), -370); }
 
   function ensureDay(k, seed) {
     if (!state.days[k]) {
@@ -777,6 +889,7 @@
     var day = state.days[k];
     if (!day.values) day.values = {};
     if (!Array.isArray(day.snapshot)) day.snapshot = [];
+    if (!day.notes) day.notes = {};
     return day;
   }
 
@@ -806,15 +919,13 @@
     if (changed) save();
   }
 
-  function dayStats(k) {
-    var day = state.days[k];
-    if (!day) return null;
-    var snap = day.snapshot || [];
+  function statsFrom(k, snap, values) {
     var done = 0, total = 0, itemsDone = 0, counted = 0;
     for (var i = 0; i < snap.length; i++) {
-      if (snap[i].startDate && snap[i].startDate > k) continue; // 시작 전 항목은 달성률에서 제외
-      var t = Math.max(1, snap[i].target || 1);
-      var v = day.values ? (day.values[snap[i].id] || 0) : 0;
+      var s = snap[i];
+      if (s.startDate && s.startDate > k) continue; // 시작 전 항목은 달성률에서 제외
+      var t = Math.max(1, s.target || 1);
+      var v = values ? (values[s.id] || 0) : 0;
       if (v < 0) v = 0; if (v > t) v = t;
       done += v; total += t; counted++;
       if (v >= t) itemsDone++;
@@ -828,13 +939,81 @@
     };
   }
 
+  function dayStats(k) {
+    var d = state.days[k];
+    if (!d) return null;
+    return statsFrom(k, d.snapshot || [], d.values || {});
+  }
+
+  function hasRecord(k) {
+    var d = state.days[k];
+    return !!(d && Array.isArray(d.snapshot) && d.snapshot.length > 0);
+  }
+
+  function findItem(id) {
+    for (var i = 0; i < state.items.length; i++) if (state.items[i].id === id) return state.items[i];
+    return null;
+  }
+
+  // 그 날 화면에 보여 줄 항목들. 저장된 기록이 있으면 그날의 스냅샷을,
+  // 아직 기록이 없으면 지금 루틴 중 그날 활성인 항목을 보여 준다(저장은 하지 않음).
+  function entriesFor(k) {
+    var d = state.days[k];
+    var out = [], i, s, g;
+    if (d) {
+      for (i = 0; i < d.snapshot.length; i++) {
+        s = d.snapshot[i];
+        g = findItem(s.id);
+        if (!g && !(typeof s.name === 'string' && s.name)) continue;
+        if (s.startDate && s.startDate > k) continue;
+        out.push({
+          id: s.id,
+          emoji: s.emoji || (g ? g.emoji : '✅'),
+          name: s.name || (g ? g.name : ''),
+          desc: (typeof s.desc === 'string') ? s.desc : (g ? g.desc : ''),
+          type: (s.type || (g ? g.type : 'check')) === 'count' ? 'count' : 'check',
+          target: Math.max(1, Math.min(100, parseInt(s.target, 10) || (g ? g.target : 1))),
+          color: (s.color != null && s.color !== '') ? parseInt(s.color, 10) : (g ? g.color : 0),
+          startDate: s.startDate || null,
+          oneOff: !g
+        });
+      }
+    } else {
+      var act = state.items.filter(function (it) { return isActiveOn(it, k); });
+      for (i = 0; i < act.length; i++) {
+        g = act[i];
+        out.push({
+          id: g.id, emoji: g.emoji, name: g.name, desc: g.desc || '',
+          type: g.type, target: g.target, color: g.color,
+          startDate: g.startDate || null, oneOff: false
+        });
+      }
+    }
+    return out;
+  }
+
+  function findEntry(k, id) {
+    var list = entriesFor(k);
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return null;
+  }
+
   function getVal(k, id) {
     var day = state.days[k];
     return day && day.values ? (day.values[id] || 0) : 0;
   }
   function setVal(k, id, v) {
-    var day = ensureDay(k, false);
+    var day = ensureDay(k, true);
     day.values[id] = v;
+  }
+  function getNote(k, id) {
+    var day = state.days[k];
+    return day && day.notes ? (day.notes[id] || '') : '';
+  }
+  function setNote(k, id, txt) {
+    var day = ensureDay(k, true);
+    if (!day.notes) day.notes = {};
+    if (txt) day.notes[id] = txt; else delete day.notes[id];
   }
 
   function streakCount() {
@@ -863,13 +1042,16 @@
 
   var el = {
     dateLine: $('dateLine'), greet: $('greet'), streak: $('streak'),
+    dayTag: $('dayTag'), pastBar: $('pastBar'), pastTxt: $('pastTxt'),
+    backToday: $('backToday'), prevDay: $('prevDay'), nextDay: $('nextDay'), dnLabel: $('dnLabel'),
     pct: $('pct'), pctSub: $('pctSub'), barFill: $('barFill'), bar: $('bar'), msg: $('msg'),
-    list: $('list'), countChip: $('countChip'), hint: $('hint'),
+    list: $('list'), listTitle: $('listTitle'), countChip: $('countChip'), hint: $('hint'), addLabel: $('addLabel'),
     calLabel: $('calLabel'), calGrid: $('calGrid'), calSum: $('calSum'), calDetail: $('calDetail'), calTitle: $('calTitle'),
     prevM: $('prevM'), nextM: $('nextM'),
     sheetWrap: $('sheetWrap'), sheetTitle: $('sheetTitle'), emojiGrid: $('emojiGrid'),
     emojiPreview: $('emojiPreview'), nameInput: $('nameInput'), seg: $('seg'),
     targetField: $('targetField'), tVal: $('tVal'), tMinus: $('tMinus'), tPlus: $('tPlus'), tChips: $('tChips'),
+    memoField: $('memoField'), memoInput: $('memoInput'),
     saveBtn: $('saveBtn'), delBtn: $('delBtn'), sheetClose: $('sheetClose'),
     toast: $('toast'), party: $('party'), partyMsg: $('partyMsg'),
     addBtn: $('addBtn'), addTop: $('addTop'), hintClose: $('hintClose'),
@@ -884,11 +1066,12 @@
     return '늦은 밤이네요, 다예 님 ✨';
   }
 
-  /* ─────────── 오늘 화면 ─────────── */
-  function itemHTML(it) {
-    var v = getVal(TODAY, it.id);
+  /* ─────────── 하루 화면(오늘·과거 공통) ─────────── */
+  function itemHTML(it, k) {
+    var v = getVal(k, it.id);
     var done = v >= it.target;
     var col = colorOf(it);
+    var note = getNote(k, it.id);
     var style = ' style="--it-bg:' + col.bg + ';--it-ink:' + col.ink + ';--it-soft:' + col.soft + '"';
 
     var head = '<span class="emoji" data-act="main">' + esc(it.emoji) + '</span>' +
@@ -897,6 +1080,7 @@
                  '<span class="sub">' + (it.type === 'count'
                     ? (done ? '완료! · ' + v + '개 누적' : '하루 ' + it.target + (it.target >= 10 ? '개' : '회'))
                     : (it.desc || (done ? '완료!' : '한 번 체크'))) + '</span>' +
+                 (note ? '<span class="memo">📝 ' + esc(note) + '</span>' : '') +
                '</div>';
 
     if (it.type === 'count') {
@@ -918,7 +1102,7 @@
           '<div class="quick undo">' +
             '<button type="button" data-act="add" data-n="-5" aria-label="5개 줄이기">−5</button>' +
             '<button type="button" data-act="add" data-n="-10" aria-label="10개 줄이기">−10</button>' +
-            '<button type="button" data-act="reset" aria-label="오늘 누적 기록 지우기">리셋</button>' +
+            '<button type="button" data-act="reset" aria-label="이 날 누적 기록 지우기">리셋</button>' +
           '</div>';
       } else {
         var ds = '';
@@ -950,18 +1134,33 @@
            '</div>';
   }
 
-  function renderToday() {
-    var active = state.items.filter(function (it) { return isActiveOn(it, TODAY); });
-    var upcoming = state.items.filter(function (it) { return !isActiveOn(it, TODAY); });
-    var st = dayStats(TODAY) || { pct: 0, done: 0, total: 0, itemsDone: 0, itemsTotal: active.length };
-    var p = kstParts();
-    el.dateLine.textContent = p.y + '년 ' + (p.m + 1) + '월 ' + p.d + '일 ' + weekday(TODAY) + '요일';
-    el.greet.textContent = greetText();
+  function renderDay() {
+    var k = viewDay;
+    var isToday = (k === TODAY);
+    var rec = isToday || hasRecord(k);
+    var entries = rec ? entriesFor(k) : [];
+    var values = (state.days[k] && state.days[k].values) || {};
+    var st = statsFrom(k, entries, values);
+    var upcoming = isToday ? state.items.filter(function (it) { return !isActiveOn(it, TODAY); }) : [];
 
-    el.pct.innerHTML = st.pct + '<span>%</span>';
-    el.pctSub.textContent = st.itemsTotal + '개 중 ' + st.itemsDone + '개 완료';
-    el.barFill.style.width = st.pct + '%';
-    el.bar.setAttribute('aria-valuenow', String(st.pct));
+    el.dateLine.textContent = longDate(k);
+    el.dayTag.hidden = false;
+    el.dayTag.textContent = dayRelation(k);
+    el.dayTag.classList.toggle('past', !isToday);
+    el.pastBar.hidden = isToday;
+    if (!isToday) el.pastTxt.textContent = '🗓 ' + shortDate(k) + ' · 지난 기록 보기·수정';
+    el.greet.textContent = isToday ? greetText() : (rec ? '이 날 기록을 고칠 수 있어요' : '이 날은 기록이 없어요');
+    el.listTitle.textContent = isToday ? '오늘의 체크' : shortDate(k) + ' 기록';
+    el.addLabel.textContent = isToday ? '새 할 일 추가' : '이 날 기록 추가';
+
+    el.prevDay.disabled = (k <= floorDay());
+    el.nextDay.disabled = (k >= TODAY);
+
+    el.pct.innerHTML = (rec ? st.pct : '–') + '<span>%</span>';
+    el.pctSub.textContent = rec ? (st.itemsTotal + '개 중 ' + st.itemsDone + '개 완료') : '기록 없음';
+    var showPct = rec ? st.pct : 0;
+    el.barFill.style.width = showPct + '%';
+    el.bar.setAttribute('aria-valuenow', String(showPct));
     el.countChip.textContent = st.itemsDone + ' / ' + st.itemsTotal;
 
     var s = streakCount();
@@ -976,26 +1175,44 @@
     }
 
     var msg;
-    if (active.length === 0 && upcoming.length > 0) msg = '예정된 루틴이 시작되면 자동으로 나타나요';
-    else if (active.length === 0) msg = '할 일을 하나 추가해서 시작해 볼까요?';
-    else if (st.pct === 0) msg = '가볍게 하나부터 시작해 볼까요?';
-    else if (st.pct < 40) msg = '좋아요, 흐름을 타고 있어요';
-    else if (st.pct < 80) msg = '절반 넘었어요, 이 기세로!';
-    else if (st.pct < 100) msg = '거의 다 왔어요. 마지막 하나!';
-    else msg = '오늘 할 일 전부 완료! 내일도 가볍게 이어가요 🎉';
+    if (isToday) {
+      if (st.itemsTotal === 0 && upcoming.length > 0) msg = '예정된 루틴이 시작되면 자동으로 나타나요';
+      else if (st.itemsTotal === 0) msg = '할 일을 하나 추가해서 시작해 볼까요?';
+      else if (st.pct === 0) msg = '가볍게 하나부터 시작해 볼까요?';
+      else if (st.pct < 40) msg = '좋아요, 흐름을 타고 있어요';
+      else if (st.pct < 80) msg = '절반 넘었어요, 이 기세로!';
+      else if (st.pct < 100) msg = '거의 다 왔어요. 마지막 하나!';
+      else msg = '오늘 할 일 전부 완료! 내일도 가볍게 이어가요 🎉';
+    } else if (!rec) {
+      msg = '이 날은 기록이 없어요 · 아래에서 채울 수 있어요';
+    } else if (st.itemsTotal === 0) {
+      msg = '이 날은 남은 항목이 없어요';
+    } else if (st.pct >= 100) {
+      msg = '이 날은 전부 완료했던 날이에요 🎉';
+    } else if (st.pct === 0) {
+      msg = '이 날은 아직 아무것도 체크하지 않았어요';
+    } else {
+      msg = st.itemsTotal + '개 중 ' + st.itemsDone + '개 완료한 날이에요';
+    }
     el.msg.textContent = msg;
 
-    if (active.length === 0) {
+    if (isToday && st.itemsTotal === 0) {
       el.list.innerHTML = upcoming.length
         ? '<div class="empty"><b>🗓</b>오늘 할 일은 아직 없어요.<br>예정된 루틴이 시작되면 자동으로 나타나요.</div>'
         : '<div class="empty"><b>🌱</b>아직 할 일이 없어요.<br>아래 버튼으로 첫 할 일을 추가해 보세요.</div>';
+    } else if (!rec) {
+      el.list.innerHTML = '<div class="empty"><b>🗓</b>' + esc(shortDate(k)) + ' 기록이 아직 없어요.<br>' +
+        '그날 한 만큼 채워 넣을 수 있어요.' +
+        '<br><button type="button" class="seed-btn" id="seedBtn">이 날 기록 채우기</button></div>';
+    } else if (entries.length === 0) {
+      el.list.innerHTML = '<div class="empty"><b>🌱</b>이 날은 남은 항목이 없어요.<br>아래에서 새 기록을 추가할 수 있어요.</div>';
     } else {
       var html = '';
-      for (var i = 0; i < active.length; i++) html += itemHTML(active[i]);
+      for (var i = 0; i < entries.length; i++) html += itemHTML(entries[i], k);
       el.list.innerHTML = html;
     }
 
-    if (upcoming.length) {
+    if (isToday && upcoming.length) {
       var uh = '<h3>예정된 루틴</h3>';
       for (var u = 0; u < upcoming.length; u++) {
         var uit = upcoming[u];
@@ -1021,7 +1238,6 @@
   /* ─────────── 달력 ─────────── */
   var nowP = kstParts();
   var view = { y: nowP.y, m: nowP.m };
-  var selected = TODAY;
 
   function levelClass(pct, has) {
     if (!has) return '';
@@ -1058,7 +1274,7 @@
       if (isFuture(k)) cls += ' future';
       else if (has) cls += ' ' + levelClass(st.pct, true);
       if (k === TODAY) cls += ' today';
-      if (k === selected) cls += ' sel';
+      if (k === viewDay) cls += ' sel';
       var label = (m + 1) + '월 ' + d + '일' + (has ? ' · ' + st.pct + '%' : ' · 기록 없음');
       html += '<button type="button" class="' + cls + '" data-day="' + k + '" aria-label="' + label + '">' +
                 '<span class="num">' + d + '</span>' +
@@ -1074,11 +1290,12 @@
   }
 
   function renderCalDetail() {
-    var p = parseKey(selected);
-    var st = dayStats(selected);
-    var head = (p.m + 1) + '월 ' + p.d + '일';
+    var k = viewDay;
+    var p = parseKey(k);
+    var st = dayStats(k);
+    var head = (p.m + 1) + '월 ' + p.d + '일 (' + weekday(k) + ')';
     var txt;
-    if (isFuture(selected)) {
+    if (isFuture(k)) {
       txt = head + ' · 아직 오지 않은 날이에요';
     } else if (st && st.itemsTotal > 0) {
       txt = head + ' · ' + st.itemsTotal + '개 중 ' + st.itemsDone + '개 완료 · ' + st.pct + '%';
@@ -1090,24 +1307,30 @@
 
   /* ─────────── 렌더 전체 ─────────── */
   function renderAll() {
-    syncToday();
-    renderToday();
+    if (viewDay === TODAY) syncToday();
+    renderDay();
     renderCalendar();
+  }
+
+  function setViewDay(k) {
+    var floor = floorDay();
+    if (k < floor) k = floor;
+    var t = todayKey();
+    if (k > t) k = t;
+    viewDay = k;
+    var p = parseKey(k);
+    view = { y: p.y, m: p.m };
+    renderAll();
   }
 
   /* ─────────── 체크 동작 ─────────── */
-  function findItem(id) {
-    for (var i = 0; i < state.items.length; i++) if (state.items[i].id === id) return state.items[i];
-    return null;
-  }
-
-  function afterChange(item, wasDone, nowDone) {
+  function afterChange(entry, wasDone, nowDone) {
     save();
-    renderToday();
+    renderDay();
     renderCalendar();
     if (nowDone && !wasDone) {
       buzz(16);
-      maybeCelebrate();
+      if (viewDay === TODAY) maybeCelebrate();
     } else if (!nowDone && wasDone) {
       buzz(8);
     } else {
@@ -1116,33 +1339,36 @@
   }
 
   function actMain(it) {
-    var v = getVal(TODAY, it.id);
+    var k = viewDay;
+    var v = getVal(k, it.id);
     var wasDone = v >= it.target;
     var nv;
     if (it.type === 'count') nv = Math.min(999, v + 1);
     else nv = wasDone ? 0 : it.target;
     if (nv === v) { buzz(5); return; }
-    setVal(TODAY, it.id, nv);
+    setVal(k, it.id, nv);
     afterChange(it, wasDone, nv >= it.target);
   }
 
   function actDec(it) {
-    var v = getVal(TODAY, it.id);
+    var k = viewDay;
+    var v = getVal(k, it.id);
     var wasDone = v >= it.target;
     if (v <= 0) return;
     var nv = Math.max(0, v - 1);
-    setVal(TODAY, it.id, nv);
+    setVal(k, it.id, nv);
     afterChange(it, wasDone, nv >= it.target);
   }
 
   /* +5 ~ +10 같은 빠른 누적 */
   function addVal(it, n) {
     if (!n) return;
-    var v = getVal(TODAY, it.id);
+    var k = viewDay;
+    var v = getVal(k, it.id);
     var wasDone = v >= it.target;
     var nv = Math.max(0, Math.min(999, v + n));
     if (nv === v) { buzz(5); return; }
-    setVal(TODAY, it.id, nv);
+    setVal(k, it.id, nv);
     afterChange(it, wasDone, nv >= it.target);
     var unit = it.target >= 10 ? '개' : '회';
     if (n > 0) {
@@ -1160,13 +1386,14 @@
     resetEl = null;
   }
   function actReset(it, btn) {
+    var k = viewDay;
     if (btn && btn.getAttribute('data-armed') === '1') {
       disarmReset();
-      var v = getVal(TODAY, it.id);
+      var v = getVal(k, it.id);
       if (v <= 0) return;
-      setVal(TODAY, it.id, 0);
+      setVal(k, it.id, 0);
       afterChange(it, v >= it.target, false);
-      showToast('오늘 기록을 지웠어요');
+      showToast(k === TODAY ? '오늘 기록을 지웠어요' : shortDate(k) + ' 기록을 지웠어요');
       return;
     }
     disarmReset();
@@ -1180,9 +1407,16 @@
 
   el.list.addEventListener('click', function (e) {
     if (lpFired) { lpFired = false; return; }
+    var seedEl = e.target.closest('#seedBtn');
+    if (seedEl) {
+      ensureDay(viewDay, true);
+      save(); renderAll();
+      showToast(shortDate(viewDay) + ' 기록을 채웠어요');
+      return;
+    }
     var itemEl = e.target.closest('.item');
     if (!itemEl) return;
-    var it = findItem(itemEl.getAttribute('data-id'));
+    var it = findEntry(viewDay, itemEl.getAttribute('data-id'));
     if (!it) return;
     var actEl = e.target.closest('[data-act]');
     var act = actEl ? actEl.getAttribute('data-act') : 'main';
@@ -1204,7 +1438,7 @@
     clearTimeout(lpTimer);
     lpTimer = setTimeout(function () {
       lpFired = true;
-      var it = findItem(itemEl.getAttribute('data-id'));
+      var it = findEntry(viewDay, itemEl.getAttribute('data-id'));
       if (it) { buzz(12); openSheet(it); }
     }, 600);
   });
@@ -1223,11 +1457,16 @@
                 '📈','💻','🎨','🎧','🌸','⭐️','🙏','⏰','🧶','📮','🚿','🍎','🌿','🪴','🎁','💗'];
 
   var editingId = null;
+  var editingOneOff = false;
   var sheetEmoji = '✅';
   var sheetType = 'check';
   var sheetTarget = 3;
   var delArmed = false;
   var delTimer = null;
+
+  function delLabel() {
+    return viewDay === TODAY ? '이 할 일 삭제' : '이 날 기록에서 지우기';
+  }
 
   (function buildEmojiGrid() {
     var html = '';
@@ -1249,20 +1488,33 @@
     el.tPlus.disabled = sheetTarget >= 100;
     var chips = el.tChips.querySelectorAll('button');
     for (var c = 0; c < chips.length; c++) chips[c].classList.toggle('on', +chips[c].getAttribute('data-t') === sheetTarget);
-    el.delBtn.hidden = !editingId;
+    el.delBtn.hidden = !editingId || (viewDay !== TODAY && !editingOneOff);
     el.delBtn.classList.remove('armed');
-    el.delBtn.textContent = '이 할 일 삭제';
+    el.delBtn.textContent = delLabel();
   }
 
   function openSheet(it) {
+    var k = viewDay;
+    var isToday = (k === TODAY);
     editingId = it ? it.id : null;
+    editingOneOff = !!(it && it.oneOff);
     sheetEmoji = it ? it.emoji : '✅';
     sheetType = it ? it.type : 'check';
     sheetTarget = it ? it.target : 3;
-    el.sheetTitle.textContent = it ? '할 일 수정' : '새 할 일 추가';
+    el.sheetTitle.textContent = it
+      ? (isToday ? '할 일 수정' : shortDate(k) + ' 기록 수정')
+      : (isToday ? '새 할 일 추가' : shortDate(k) + ' 기록 추가');
     el.nameInput.value = it ? it.name : '';
-    el.delBtn.hidden = !it;
-    if (it && it.startDate && it.startDate > TODAY) {
+    el.memoField.hidden = !it;
+    el.memoInput.value = it ? getNote(k, it.id) : '';
+    el.delBtn.hidden = !it || (!isToday && !editingOneOff);
+
+    if (!isToday) {
+      el.startNote.hidden = false;
+      el.startNote.textContent = it
+        ? '🗓 이 수정은 ' + shortDate(k) + ' 기록에만 적용돼요. 다른 날짜는 그대로예요.'
+        : '🗓 ' + shortDate(k) + '에만 남는 기록으로 추가돼요.';
+    } else if (it && it.startDate && it.startDate > TODAY) {
       el.startNote.hidden = false;
       el.startNote.textContent = '🗓 ' + shortDate(it.startDate) + '부터 오늘의 체크에 나타나요. 그 전까지는 달성률에 들어가지 않아요.';
     } else {
@@ -1285,6 +1537,7 @@
     setTimeout(function () {
       el.sheetWrap.hidden = true;
       editingId = null;
+      editingOneOff = false;
     }, 230);
   }
 
@@ -1322,19 +1575,47 @@
       return;
     }
     var target = sheetType === 'count' ? Math.max(2, Math.min(100, sheetTarget)) : 1;
+    var k = viewDay;
+    var memo = el.memoInput.value.trim().replace(/\s+/g, ' ').slice(0, 60);
 
     if (editingId) {
-      var it = findItem(editingId);
-      if (it) {
-        it.emoji = sheetEmoji; it.name = name; it.type = sheetType; it.target = target;
+      if (k === TODAY) {
+        var it = findItem(editingId);
+        if (it) {
+          it.emoji = sheetEmoji; it.name = name; it.type = sheetType; it.target = target;
+        }
+        setNote(k, editingId, memo);
+        save(); renderAll(); closeSheet();
+        showToast('수정했어요');
+      } else {
+        // 지난 기록은 그날 스냅샷에만 적어 둔다 (다른 날짜·현재 루틴은 그대로)
+        var day = ensureDay(k, true);
+        var s = null;
+        for (var i = 0; i < day.snapshot.length; i++) if (day.snapshot[i].id === editingId) { s = day.snapshot[i]; break; }
+        if (!s) { s = { id: editingId, target: target, startDate: null }; day.snapshot.push(s); }
+        s.emoji = sheetEmoji; s.name = name; s.type = sheetType; s.target = target;
+        if (s.color == null || s.color === '') s.color = nextColor();
+        if (memo) { day.notes = day.notes || {}; day.notes[editingId] = memo; }
+        else if (day.notes) delete day.notes[editingId];
+        save(); renderAll(); closeSheet();
+        showToast(shortDate(k) + ' 기록을 수정했어요');
       }
-      save(); renderAll(); closeSheet();
-      showToast('수정했어요');
     } else {
       var item = { id: uid(), emoji: sheetEmoji, name: name, desc: '', type: sheetType, target: target, color: nextColor(), startDate: null };
-      state.items.push(item);
-      save(); renderAll(); closeSheet();
-      showToast('새 할 일을 추가했어요');
+      if (k === TODAY) {
+        state.items.push(item);
+        save(); renderAll(); closeSheet();
+        showToast('새 할 일을 추가했어요');
+      } else {
+        var d2 = ensureDay(k, true);
+        d2.snapshot.push({
+          id: item.id, emoji: item.emoji, name: item.name, desc: '',
+          type: item.type, target: item.target, color: item.color, startDate: null
+        });
+        if (memo) { d2.notes = d2.notes || {}; d2.notes[item.id] = memo; }
+        save(); renderAll(); closeSheet();
+        showToast(shortDate(k) + ' 기록에 추가했어요');
+      }
     }
   });
 
@@ -1344,6 +1625,7 @@
 
   el.delBtn.addEventListener('click', function () {
     if (!editingId) return;
+    if (viewDay !== TODAY && !editingOneOff) return;
     if (!delArmed) {
       delArmed = true;
       el.delBtn.classList.add('armed');
@@ -1352,16 +1634,30 @@
       delTimer = setTimeout(function () {
         delArmed = false;
         el.delBtn.classList.remove('armed');
-        el.delBtn.textContent = '이 할 일 삭제';
+        el.delBtn.textContent = delLabel();
       }, 15000);
       return;
     }
     var id = editingId;
-    state.items = state.items.filter(function (i) { return i.id !== id; });
-    var day = ensureDay(TODAY, false);
-    day.snapshot = day.snapshot.filter(function (s) { return s.id !== id; });
-    save(); renderAll(); closeSheet();
-    showToast('할 일을 삭제했어요');
+    var k = viewDay;
+    if (k === TODAY) {
+      state.items = state.items.filter(function (i) { return i.id !== id; });
+      var day = ensureDay(TODAY, false);
+      day.snapshot = day.snapshot.filter(function (s) { return s.id !== id; });
+      delete day.values[id];
+      if (day.notes) delete day.notes[id];
+      save(); renderAll(); closeSheet();
+      showToast('할 일을 삭제했어요');
+    } else {
+      var pd = state.days[k];
+      if (pd) {
+        pd.snapshot = pd.snapshot.filter(function (s) { return s.id !== id; });
+        if (pd.values) delete pd.values[id];
+        if (pd.notes) delete pd.notes[id];
+      }
+      save(); renderAll(); closeSheet();
+      showToast(shortDate(k) + ' 기록에서 지웠어요');
+    }
   });
 
   el.sheetClose.addEventListener('click', closeSheet);
@@ -1385,6 +1681,24 @@
     el.hint.classList.add('hide');
   });
 
+  /* 날짜 이동 */
+  el.prevDay.addEventListener('click', function () {
+    if (viewDay <= floorDay()) return;
+    setViewDay(addDays(viewDay, -1));
+  });
+  el.nextDay.addEventListener('click', function () {
+    if (viewDay >= TODAY) return;
+    setViewDay(addDays(viewDay, 1));
+  });
+  el.backToday.addEventListener('click', function () { setViewDay(TODAY); });
+  el.dnLabel.addEventListener('click', function () {
+    var cal = el.calTitle.closest('.cal') || el.calGrid;
+    try { cal.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { cal.scrollIntoView(); }
+  });
+  el.dnLabel.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.dnLabel.click(); }
+  });
+
   /* 달력 이동/선택 */
   el.prevM.addEventListener('click', function () {
     view.m--; if (view.m < 0) { view.m = 11; view.y--; }
@@ -1399,8 +1713,10 @@
   el.calGrid.addEventListener('click', function (e) {
     var b = e.target.closest('.day');
     if (!b) return;
-    selected = b.getAttribute('data-day');
-    renderCalendar();
+    var k = b.getAttribute('data-day');
+    if (k > TODAY) { showToast('아직 오지 않은 날이에요'); return; }
+    setViewDay(k);
+    try { el.calGrid.closest('.cal').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (er) {}
   });
 
   /* ─────────── 토스트 / 축하 ─────────── */
@@ -1474,11 +1790,12 @@
   function checkRollover() {
     var t = todayKey();
     if (t !== renderedDay) {
+      var wasViewingToday = (viewDay === renderedDay);
       renderedDay = t;
       TODAY = t;
-      selected = t;
       var np = kstParts();
-      nowP = np; view = { y: np.y, m: np.m };
+      nowP = np;
+      if (wasViewingToday) { viewDay = t; view = { y: np.y, m: np.m }; }
       ensureDay(TODAY, true);
       save();
       renderAll();
@@ -1499,6 +1816,7 @@
   }
 
   /* ─────────── 시작 ─────────── */
+  viewDay = TODAY;
   ensureDay(TODAY, true);
   save();
   renderAll();
